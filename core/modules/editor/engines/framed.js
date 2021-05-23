@@ -42,7 +42,6 @@ function FramedEngine(options) {
 	this.iframeNode.style.border = "none";
 	this.iframeNode.style.padding = "0";
 	this.iframeNode.style.resize = "none";
-	this.iframeNode.style["background-color"] = this.widget.wiki.extractTiddlerDataItem(this.widget.wiki.getTiddlerText("$:/palette"),"tiddler-editor-background");
 	this.iframeDoc.body.style.margin = "0";
 	this.iframeDoc.body.style.padding = "0";
 	this.widget.domNodes.push(this.iframeNode);
@@ -74,6 +73,9 @@ function FramedEngine(options) {
 	if(this.widget.editTabIndex) {
 		this.iframeNode.setAttribute("tabindex",this.widget.editTabIndex);
 	}
+	if(this.widget.editAutoComplete) {
+		this.domNode.setAttribute("autocomplete",this.widget.editAutoComplete);
+	}
 	if(this.widget.isDisabled === "yes") {
 		this.domNode.setAttribute("disabled",true);
 	}	
@@ -85,7 +87,20 @@ function FramedEngine(options) {
 		{name: "input",handlerObject: this,handlerMethod: "handleInputEvent"},
 		{name: "keydown",handlerObject: this.widget,handlerMethod: "handleKeydownEvent"},
 		{name: "focus",handlerObject: this,handlerMethod: "handleFocusEvent"}
+	
 	]);
+	// Add drag and drop event listeners if fileDrop is enabled
+	if(this.widget.isFileDropEnabled) {
+		$tw.utils.addEventListeners(this.domNode,[
+			{name: "dragenter",handlerObject: this.widget,handlerMethod: "handleDragEnterEvent"},
+			{name: "dragover",handlerObject: this.widget,handlerMethod: "handleDragOverEvent"},
+			{name: "dragleave",handlerObject: this.widget,handlerMethod: "handleDragLeaveEvent"},
+			{name: "dragend",handlerObject: this.widget,handlerMethod: "handleDragEndEvent"},
+			{name: "drop", handlerObject: this.widget,handlerMethod: "handleDropEvent"},
+			{name: "paste", handlerObject: this.widget,handlerMethod: "handlePasteEvent"},
+			{name: "click",handlerObject: this.widget,handlerMethod: "handleClickEvent"}
+		]);
+	}
 	// Insert the element into the DOM
 	this.iframeDoc.body.appendChild(this.domNode);
 }
@@ -100,7 +115,6 @@ FramedEngine.prototype.copyStyles = function() {
 	this.domNode.style.display = "block";
 	this.domNode.style.width = "100%";
 	this.domNode.style.margin = "0";
-	this.domNode.style["background-color"] = this.widget.wiki.extractTiddlerDataItem(this.widget.wiki.getTiddlerText("$:/palette"),"tiddler-editor-background");
 	// In Chrome setting -webkit-text-fill-color overrides the placeholder text colour
 	this.domNode.style["-webkit-text-fill-color"] = "currentcolor";
 };

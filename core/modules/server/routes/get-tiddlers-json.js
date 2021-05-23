@@ -28,9 +28,11 @@ exports.handler = function(request,response,state) {
 			return;
 		}
 	}
+	if(state.wiki.getTiddlerText("$:/config/SyncSystemTiddlersFromServer") === "no") {
+		filter += "+[!is[system]]";
+	}
 	var excludeFields = (state.queryParameters.exclude || "text").split(","),
 		titles = state.wiki.filterTiddlers(filter);
-	response.writeHead(200, {"Content-Type": "application/json"});
 	var tiddlers = [];
 	$tw.utils.each(titles,function(title) {
 		var tiddler = state.wiki.getTiddler(title);
@@ -42,7 +44,7 @@ exports.handler = function(request,response,state) {
 		}
 	});
 	var text = JSON.stringify(tiddlers);
-	response.end(text,"utf8");
+	state.sendResponse(200,{"Content-Type": "application/json"},text,"utf8");
 };
 
 }());

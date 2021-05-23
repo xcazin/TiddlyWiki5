@@ -23,7 +23,7 @@ exports.reduce = function(source,operator,options) {
 	});
 	// Run the filter over each item
 	var filterFn = options.wiki.compileFilter(operator.operand),
-		accumulator = operator.suffix || "";
+		accumulator = operator.operands[1] || "";
 	for(var index=0; index<results.length; index++) {
 		var title = results[index],
 			list = filterFn.call(options.wiki,options.wiki.makeTiddlerIterator([title]),{
@@ -31,6 +31,8 @@ exports.reduce = function(source,operator,options) {
 					switch(name) {
 						case "currentTiddler":
 							return "" + title;
+						case "..currentTiddler":
+							return options.widget.getVariable("currentTiddler");
 						case "accumulator":
 							return "" + accumulator;
 						case "index":
@@ -48,7 +50,11 @@ exports.reduce = function(source,operator,options) {
 			accumulator = "" +  list[0];
 		}
 	}
-	return [accumulator];
+	if(results.length > 0) {
+		return [accumulator];
+	} else {
+		return [];
+	}
 };
 
 })();
